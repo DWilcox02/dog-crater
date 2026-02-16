@@ -187,6 +187,7 @@ function App() {
         }
         .custom-tiered-menu .p-submenu-icon {
           margin-left: auto;
+          margin-right: auto;
         }
       `}</style>
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'flex-start' }}>

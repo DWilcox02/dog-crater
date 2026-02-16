@@ -50,12 +50,12 @@ function ControlButtons({
 
 function Timer({ time }: TimerProps) {
     const absTime = Math.abs(time);
-    const sign = time < 0 ? "-" : "";
+    // const sign = time < 0 ? "-" : "";
 
     return (
         <div className="timer">
             <span className="digits">
-                {sign}{("0" + Math.floor((absTime / 60000) % 60)).slice(-2)}:
+                {("0" + Math.floor((absTime / 60000) % 60)).slice(-2)}:
             </span>
             <span className="digits">
                 {("0" + Math.floor((absTime / 1000) % 60)).slice(-2)}.
@@ -137,13 +137,14 @@ function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_STA
     return (
         <div className="stop-watch">
             {isActive && <Timer time={time} />}
-            {/* <ControlButtons
-                active={isActive}
-                isPaused={isPaused}
-                handleStart={handleStart}
-                handlePauseResume={handlePauseResume}
-                handleReset={handleReset}
-            /> */}
+            {isActive && time > 0 && <>
+                <p>left on timer</p>
+            </>}
+            {isActive && time <= 0 && <>
+                <p>overtime</p>
+            </>}
+
+            
         </div>
     );
 }

@@ -6,7 +6,6 @@ import DogTimer from './DogTimer';
 interface DogCardProps {
     dog: Dog;
     isSelected?: boolean;
-    onStart?: (dog: Dog) => void;
     initialTime?: number;
     onStop?: (dog: Dog) => void;
     dogCrated?: boolean;
@@ -14,17 +13,15 @@ interface DogCardProps {
     endTime?: number;
 }
 
-const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, dogCrated, timerDuration, endTime }) => {
+const DogImage: React.FC<{ dog: Dog }> = ({ dog }) => {
+    return (
+        <div className="dog-image-container">
+            <img src={dog.filepath} alt="Dog" className="dog-image" loading="lazy" />
+        </div>
+    )
+}
 
-    const handleStart = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (onStart) onStart(dog);
-    };
-
-    const handleStop = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (onStop) onStop(dog);
-    };
+const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStop, dogCrated, timerDuration, endTime }) => {
 
     const handleComplete = () => {
         if (onStop) onStop(dog);
@@ -43,22 +40,7 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, dog
                 className="dog-card"
                 style={cardStyle}
             >
-                <div className="dog-image-container">
-                    <img src={dog.filepath} alt="Dog" className="dog-image" loading="lazy" />
-
-                    {/* Hover Menu Overlay */}
-                    {(isSelected) && (
-                        <div className="dog-card-overlay">
-                            {/* Buttons can be used as fallback or alternative to menu */}
-                            {!dogCrated ? (
-                                <button onClick={handleStart} className="timer-btn start">Start</button>
-                            ) : (
-                                <button onClick={handleStop} className="timer-btn stop">Stop</button>
-                            )}
-                        </div>
-                    )}
-                </div>
-
+                {/* <DogImage dog={dog} /> */}
                 <div className="dog-info">
                     <h3>{dog.name}, {dog.strikes} strike{dog.strikes !== 1 ? 's' : ''}</h3>
                 </div>
