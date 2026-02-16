@@ -9,11 +9,12 @@ interface DogCardProps {
     onStart?: (dog: Dog) => void;
     initialTime?: number;
     onStop?: (dog: Dog) => void;
-    isRunning?: boolean;
+    dogCrated?: boolean;
     timerDuration?: number;
+    endTime?: number;
 }
 
-const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isRunning, timerDuration }) => {
+const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, dogCrated, timerDuration, endTime }) => {
 
     const handleStart = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -49,7 +50,7 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isR
                     {(isSelected) && (
                         <div className="dog-card-overlay">
                             {/* Buttons can be used as fallback or alternative to menu */}
-                            {!isRunning ? (
+                            {!dogCrated ? (
                                 <button onClick={handleStart} className="timer-btn start">Start</button>
                             ) : (
                                 <button onClick={handleStop} className="timer-btn stop">Stop</button>
@@ -63,9 +64,10 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isR
                 </div>
 
                 <DogTimer
-                    isRunning={isRunning}
+                    isRunning={dogCrated}
                     onComplete={handleComplete}
                     initialDuration={timerDuration}
+                    endTime={endTime}
                     key={timerDuration} // Reset timer if duration changes
                 />
             </div>

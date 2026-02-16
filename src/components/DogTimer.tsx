@@ -49,16 +49,16 @@ function ControlButtons({
 }
 
 function Timer({ time }: TimerProps) {
+    const absTime = Math.abs(time);
+    const sign = time < 0 ? "-" : "";
+
     return (
         <div className="timer">
             <span className="digits">
-                {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:
+                {sign}{("0" + Math.floor((absTime / 60000) % 60)).slice(-2)}:
             </span>
             <span className="digits">
-                {("0" + Math.floor((time / 1000) % 60)).slice(-2)}.
-            </span>
-            <span className="digits mili-sec">
-                {("0" + ((time / 10) % 100)).slice(-2)}
+                {("0" + Math.floor((absTime / 1000) % 60)).slice(-2)}.
             </span>
         </div>
     );
@@ -68,9 +68,10 @@ interface DogTimerProps {
     isRunning?: boolean;
     onComplete?: () => void;
     initialDuration?: number;
+    endTime?: number;
 }
 
-function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_START_TIME }: DogTimerProps) {
+function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_START_TIME, endTime }: DogTimerProps) {
     const [isActive, setIsActive] = useState<boolean>(false);
     const [isPaused, setIsPaused] = useState<boolean>(true);
 
@@ -78,8 +79,12 @@ function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_STA
 
     // Reset time if initialDuration changes
     useEffect(() => {
-        setTime(initialDuration);
-    }, [initialDuration]);
+        if (endTime) {
+            setTime(endTime - Date.now());
+        } else {
+            setTime(initialDuration);
+        }
+    }, [initialDuration, endTime]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval> | null = null;
@@ -87,14 +92,9 @@ function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_STA
         if (isActive && isPaused === false) {
             interval = setInterval(() => {
                 setTime((prevTime) => {
-
-                    if (prevTime <= 10) {
-                        setIsActive(false);
-                        setIsPaused(true);
-                        if (onComplete) onComplete();
-                        return 0;
+                    if (endTime) {
+                        return endTime - Date.now();
                     }
-
                     return prevTime - 10;
                 });
             }, 10);
@@ -103,22 +103,20 @@ function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_STA
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [isActive, isPaused, onComplete]);
+    }, [isActive, isPaused, onComplete, endTime]);
 
     useEffect(() => {
         if (isRunning) {
             const timeoutId = setTimeout(() => {
-                if (time > 0) {
-                    setIsActive(true);
-                    setIsPaused(false);
-                }
+                setIsActive(true);
+                setIsPaused(false);
             }, 0);
             return () => clearTimeout(timeoutId);
         } else {
             const timeoutId = setTimeout(() => setIsPaused(true), 0);
             return () => clearTimeout(timeoutId);
         }
-    }, [isRunning, time]);
+    }, [isRunning]);
 
     const handleStart = () => {
         if (time > 0) {
@@ -138,14 +136,14 @@ function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_STA
 
     return (
         <div className="stop-watch">
-            <Timer time={time} />
-            <ControlButtons
+            {isActive && <Timer time={time} />}
+            {/* <ControlButtons
                 active={isActive}
                 isPaused={isPaused}
                 handleStart={handleStart}
                 handlePauseResume={handlePauseResume}
                 handleReset={handleReset}
-            />
+            /> */}
         </div>
     );
 }

@@ -21,7 +21,7 @@ const DogGrid: React.FC<DogGridProps> = ({ dogs, selectedDogIndex, onStartTimer,
           isSelected={index === selectedDogIndex}
           onStart={onStartTimer}
           onStop={onStopTimer}
-          isRunning={!!runningTimers[dog.dog_id]}
+          dogCrated={!!runningTimers[dog.dog_id]}
           timerDuration={runningTimers[dog.dog_id]}
         />
       ))}

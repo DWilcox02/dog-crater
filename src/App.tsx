@@ -13,6 +13,9 @@ function App() {
 
   // Store active timers: mapping dog_id -> duration in ms
   const [activeTimers, setActiveTimers] = useState<Record<number, number>>({});
+  const [crateEndTimes, setCrateEndTimes] = useState<Record<number, number>>({});
+  const [isCrated, setIsCrated] = useState<Record<number, boolean>>({});
+
 
   // Ref for the TieredMenu to handle focus if needed
   const menuRef = useRef<TieredMenu>(null);
@@ -31,23 +34,36 @@ function App() {
     ));
   };
 
-  const startTimer = (dogId: number, durationMinutes: number) => {
+  const crateDog = (dogId: number, durationMinutes: number) => {
+    addStrike(dogId);
     const durationMs = durationMinutes * 60 * 1000;
     setActiveTimers(prev => ({ ...prev, [dogId]: durationMs }));
+    setCrateEndTimes(prev => ({ ...prev, [dogId]: Date.now() + durationMs }));
+    setIsCrated(prev => ({ ...prev, [dogId]: true }));
   };
 
-  const stopTimer = (dogId: number) => {
+  const uncrateDog = (dogId: number) => {
     setActiveTimers(prev => {
       const next = { ...prev };
       delete next[dogId];
       return next;
     });
+    setCrateEndTimes(prev => {
+      const next = { ...prev };
+      delete next[dogId];
+      return next;
+    });
+    setIsCrated(prev => {
+      const next = { ...prev };
+      delete next[dogId];
+      return next;
+    })
   };
 
   // --- Menu Model Construction ---
 
   const menuItems: MenuItem[] = dogs.map(dog => {
-    const isRunning = !!activeTimers[dog.dog_id];
+    const dogCrated = isCrated[dog.dog_id];
 
     return {
       label: dog.name, // Used for accessibility/keys
@@ -58,9 +74,9 @@ function App() {
             <DogCard
               dog={dog}
               isSelected={false} // Disable overlay buttons, rely on menu actions
-              isRunning={isRunning}
+              dogCrated={dogCrated}
               timerDuration={activeTimers[dog.dog_id]}
-              onStop={() => stopTimer(dog.dog_id)}
+              endTime={crateEndTimes[dog.dog_id]}
             />
           </div>
         );
@@ -82,36 +98,36 @@ function App() {
             }
           ]
         },
-        {
-          label: 'Timer',
+        (dogCrated ? {
+          label: 'Uncrate',
           icon: 'pi pi-clock',
-          items: isRunning ? [
+          command: () => uncrateDog(dog.dog_id)
+        } : {
+          label: 'Crate',
+          icon: 'pi pi-play',
+          items: [
             {
-              label: 'Stop',
-              icon: 'pi pi-stop-circle',
-              command: () => stopTimer(dog.dog_id)
-            }
-          ] : [
+              label: '6 Seconds',
+              command: () => crateDog(dog.dog_id, 0.1)
+            },
             {
-              label: 'Start Timer',
-              icon: 'pi pi-play',
-              items: [
-                {
-                  label: '5 Minutes',
-                  command: () => startTimer(dog.dog_id, 5)
-                },
-                {
-                  label: '10 Minutes',
-                  command: () => startTimer(dog.dog_id, 10)
-                },
-                {
-                  label: '15 Minutes',
-                  command: () => startTimer(dog.dog_id, 15)
-                }
-              ]
+              label: '1 Minute',
+              command: () => crateDog(dog.dog_id, 1)
+            },
+            {
+              label: '5 Minutes',
+              command: () => crateDog(dog.dog_id, 5)
+            },
+            {
+              label: '10 Minutes',
+              command: () => crateDog(dog.dog_id, 10)
+            },
+            {
+              label: '15 Minutes',
+              command: () => crateDog(dog.dog_id, 15)
             }
           ]
-        }
+        })
       ]
     };
   });
