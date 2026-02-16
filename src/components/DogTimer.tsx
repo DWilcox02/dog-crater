@@ -1,7 +1,7 @@
 import '../css/DogGrid.css';
 import { useState, useEffect } from 'react';
 
-const START_TIME = 60000;
+const DEFAULT_START_TIME = 60000;
 
 interface ControlButtonsProps {
     active: boolean;
@@ -67,13 +67,19 @@ function Timer({ time }: TimerProps) {
 interface DogTimerProps {
     isRunning?: boolean;
     onComplete?: () => void;
+    initialDuration?: number;
 }
 
-function DogTimer({ isRunning = false, onComplete }: DogTimerProps) {
+function DogTimer({ isRunning = false, onComplete, initialDuration = DEFAULT_START_TIME }: DogTimerProps) {
     const [isActive, setIsActive] = useState<boolean>(false);
     const [isPaused, setIsPaused] = useState<boolean>(true);
 
-    const [time, setTime] = useState(START_TIME);
+    const [time, setTime] = useState(initialDuration);
+
+    // Reset time if initialDuration changes
+    useEffect(() => {
+        setTime(initialDuration);
+    }, [initialDuration]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval> | null = null;
@@ -115,7 +121,6 @@ function DogTimer({ isRunning = false, onComplete }: DogTimerProps) {
     }, [isRunning, time]);
 
     const handleStart = () => {
-
         if (time > 0) {
             setIsActive(true);
             setIsPaused(false);
@@ -128,7 +133,7 @@ function DogTimer({ isRunning = false, onComplete }: DogTimerProps) {
 
     const handleReset = () => {
         setIsActive(false);
-        setTime(START_TIME);
+        setTime(initialDuration);
     };
 
     return (

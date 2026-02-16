@@ -1,10 +1,7 @@
-
 import React from 'react';
 import '../css/DogGrid.css';
 import type { Dog } from "../types/types";
 import DogTimer from './DogTimer';
-import { TieredMenu } from 'primereact/tieredmenu';
-
 
 interface DogCardProps {
     dog: Dog;
@@ -13,10 +10,10 @@ interface DogCardProps {
     initialTime?: number;
     onStop?: (dog: Dog) => void;
     isRunning?: boolean;
+    timerDuration?: number;
 }
 
-const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isRunning }) => {
-
+const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isRunning, timerDuration }) => {
 
     const handleStart = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -38,22 +35,6 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isR
         zIndex: 10
     } : {};
 
-    const items = [
-        {
-            label: 'View',
-            items: [
-                {
-                    label: "Info"
-                }
-            ]
-        },
-        {
-            label: 'Edit',
-            icon: 'pi pi-pencil',
-        },
-    ];
-
-
     return (
         <>
             <div
@@ -63,12 +44,16 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isR
             >
                 <div className="dog-image-container">
                     <img src={dog.filepath} alt="Dog" className="dog-image" loading="lazy" />
-                    {/* Hover Menu Overlay */}
 
+                    {/* Hover Menu Overlay */}
                     {(isSelected) && (
                         <div className="dog-card-overlay">
-                            <button onClick={handleStart} className="timer-btn start">Start</button>
-                            <button onClick={handleStop} className="timer-btn stop">Stop</button>
+                            {/* Buttons can be used as fallback or alternative to menu */}
+                            {!isRunning ? (
+                                <button onClick={handleStart} className="timer-btn start">Start</button>
+                            ) : (
+                                <button onClick={handleStop} className="timer-btn stop">Stop</button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -77,7 +62,12 @@ const DogCard: React.FC<DogCardProps> = ({ dog, isSelected, onStart, onStop, isR
                     <h3>{dog.name}, {dog.strikes} strike{dog.strikes !== 1 ? 's' : ''}</h3>
                 </div>
 
-                <DogTimer isRunning={isRunning} onComplete={handleComplete} />
+                <DogTimer
+                    isRunning={isRunning}
+                    onComplete={handleComplete}
+                    initialDuration={timerDuration}
+                    key={timerDuration} // Reset timer if duration changes
+                />
             </div>
         </>
     )
