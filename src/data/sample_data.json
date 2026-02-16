@@ -1,0 +1,39 @@
+{
+  "dogs_data": [
+    {
+      "dog_id": 1,
+      "name": "Buddy",
+      "filepath": "dogs/dog1.png",
+      "is_in_crate": 0,
+      "strikes": 1
+    },
+    {
+      "dog_id": 2,
+      "name": "Lucy",
+      "filepath": "dogs/dog2.png",
+      "is_in_crate": 1,
+      "strikes": 0
+    },
+    {
+      "dog_id": 3,
+      "name": "Max",
+      "filepath": "dogs/dog3.png",
+      "is_in_crate": 0,
+      "strikes": 2
+    }
+  ],
+  "crate_sessions_data": [
+    {
+      "session_id": 1,
+      "dog_id": 1,
+      "start_time": 1715425200000,
+      "end_time": 1715428800000
+    },
+    {
+      "session_id": 2,
+      "dog_id": 2,
+      "start_time": 1715432400000,
+      "end_time": null
+    }
+  ]
+}
