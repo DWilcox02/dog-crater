@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './css/App.css'
 import type { Dog } from "./types/types";
-import DogGrid from './components/DogGrid'
+import DogCard from './components/DogCard';
 import { dogs_data } from "./data/sample_data.json";
 import { PrimeReactProvider } from "primereact/api";
 import { TieredMenu } from 'primereact/tieredmenu';
@@ -14,7 +14,7 @@ function App() {
   // Store active timers: mapping dog_id -> duration in ms
   const [activeTimers, setActiveTimers] = useState<Record<number, number>>({});
 
-  // Ref for the TieredMenu to handle focus if needed, though mostly automatic with clicking
+  // Ref for the TieredMenu to handle focus if needed
   const menuRef = useRef<TieredMenu>(null);
 
   // --- Actions ---
@@ -50,7 +50,21 @@ function App() {
     const isRunning = !!activeTimers[dog.dog_id];
 
     return {
-      label: dog.name,
+      label: dog.name, // Used for accessibility/keys
+      // Render the DogCard as the menu item content
+      template: (item, options) => {
+        return (
+          <div className={options.className} onClick={options.onClick} style={{ padding: 0, width: '100%' }}>
+            <DogCard
+              dog={dog}
+              isSelected={false} // Disable overlay buttons, rely on menu actions
+              isRunning={isRunning}
+              timerDuration={activeTimers[dog.dog_id]}
+              onStop={() => stopTimer(dog.dog_id)}
+            />
+          </div>
+        );
+      },
       items: [
         {
           label: 'Strikes',
@@ -71,7 +85,6 @@ function App() {
         {
           label: 'Timer',
           icon: 'pi pi-clock',
-          // If timer is running, show Stop. Else show Start options.
           items: isRunning ? [
             {
               label: 'Stop',
@@ -105,7 +118,6 @@ function App() {
 
   // Auto-focus the menu on mount so arrow keys work immediately
   useEffect(() => {
-    // Find the menu DOM element and focus it if possible
     const menuElement = document.querySelector('.p-tieredmenu');
     if (menuElement instanceof HTMLElement) {
       menuElement.focus();
@@ -114,27 +126,65 @@ function App() {
 
   return (
     <PrimeReactProvider>
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
+      <style>{`
+        body {
+          display: block;
+          place-items: unset;
+        }
+        #root {
+          max-width: 100%;
+          margin: 0;
+          padding: 2rem;
+          text-align: left;
+        }
+        .custom-tiered-menu {
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          background: #ffffff;
+          padding: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          width: 280px;
+        }
+        .custom-tiered-menu .p-submenu-list {
+          width: 200px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          padding: 0.5rem;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .custom-tiered-menu .p-menuitem-link {
+          padding: 0.75rem 1rem;
+          color: #374151;
+          border-radius: 0.375rem;
+          transition: background-color 0.2s;
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+        }
+        .custom-tiered-menu .p-menuitem-link:hover,
+        .custom-tiered-menu .p-menuitem-active > .p-menuitem-link {
+          background-color: #f3f4f6;
+        }
+        .custom-tiered-menu .p-menuitem-text {
+          margin-left: 0.5rem;
+        }
+        .custom-tiered-menu .p-submenu-icon {
+          margin-left: auto;
+        }
+      `}</style>
+      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'flex-start' }}>
 
-        {/* Tiered Menu Control */}
-        <div style={{ alignSelf: 'flex-start', marginLeft: '2rem', marginBottom: '1rem' }}>
+        {/* Main Interface: Tiered Menu containing Dog Cards */}
+        <div style={{ marginBottom: '1rem' }}>
           <h3>Dog Controls (Use Arrow Keys)</h3>
           <TieredMenu
             model={menuItems}
             ref={menuRef}
-            style={{ width: '250px' }}
+            className="custom-tiered-menu"
           />
         </div>
 
-        {/* Visual Grid Representation */}
-        <div>
-          <DogGrid
-            dogs={dogs}
-            runningTimers={activeTimers}
-            // Optional: Passing these for manual clicks if needed, but menu drives logic now
-            onStopTimer={(dog) => stopTimer(dog.dog_id)}
-          />
-        </div>
       </div>
     </PrimeReactProvider>
   )
